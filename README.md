@@ -1,2 +1,2 @@
 # little-lemon
-Coursera Capstone Project
+Coursera Capstone Project: little-lemon
