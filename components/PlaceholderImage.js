@@ -18,11 +18,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#dedede',
     justifyContent: 'center',
     alignItems: 'center',
-    // borderRadius: 35,
   },
   initials: {
     color: '#fff',
-    fontSize: 40,
+    fontSize: 35,
   }
 });
 
