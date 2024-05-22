@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { TextInput, Text, StyleSheet, View, Image, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
+import { CommonActions } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function OnboardingView({ navigation }) {
@@ -13,6 +14,17 @@ export default function OnboardingView({ navigation }) {
 
     const isPressableEnable = firstName.trim() !== '' && isValidEmail(email)
 
+    const login = (navigation) => {
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [
+                    { name: 'Home' },
+                ],
+            })
+        );
+    };
+      
     return (
         <KeyboardAvoidingView 
             style={styles.container}
@@ -44,7 +56,7 @@ export default function OnboardingView({ navigation }) {
                         try {
                             await AsyncStorage.setItem('@firstName', firstName)
                             await AsyncStorage.setItem('@email', email)
-                            navigation.navigate("Profile")
+                            login(navigation)
                         } catch (e) {
                             Alert.alert(`An error occurred: ${e.message}`);
                         } 

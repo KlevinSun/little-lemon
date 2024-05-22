@@ -12,6 +12,7 @@ import {
     ScrollView } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import { MaskedTextInput, mask } from "react-native-mask-text";
+import { CommonActions } from '@react-navigation/native'
 import CheckBoxItem from '../components/CheckBoxItem'
 import PlaceholderImage from '../components/PlaceholderImage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,6 +28,17 @@ export default function Profile({ navigation }) {
     const [passwordChange, setPasswordChange] = React.useState(true)
     const [specialOffer, setSpecialOffer] = React.useState(true)
     const [newsletter, setNewsletter] = React.useState(true)
+
+    const logout = (navigation) => {
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [
+                    { name: 'OnboardingView' },
+                ],
+            })
+        );
+    };
 
     React.useEffect(() => {
         (async ()=>{
@@ -154,6 +166,18 @@ export default function Profile({ navigation }) {
                                 await AsyncStorage.removeItem('@passwordChange')
                                 await AsyncStorage.removeItem('@specialOffer')
                                 await AsyncStorage.removeItem('@newsletter')
+
+                                setAvatar(null)
+                                setAvatar('')
+                                setLastName('')
+                                setFirstName('')
+                                setPhone('')
+                                setOrderStatues(true)
+                                setPasswordChange(true)
+                                setSpecialOffer(true)
+                                setNewsletter(true)
+
+                                logout(navigation)
                             } catch (e) {
                                 Alert.alert(`An error occurred: ${e.message}`);
                             } 
@@ -164,15 +188,29 @@ export default function Profile({ navigation }) {
                     <Pressable style={styles.saveButton} onPress={() => {
                         (async ()=> {
                             try {
-                                await AsyncStorage.setItem('@avatar', avatar)
-                                await AsyncStorage.setItem('@email', email)
-                                await AsyncStorage.setItem('@lastName', lastName)
-                                await AsyncStorage.setItem('@firstName', firstName)
-                                await AsyncStorage.setItem('@phone', phone)
+                                if (avatar !== null) {
+                                    await AsyncStorage.setItem('@avatar', avatar)
+                                } else {
+                                    await AsyncStorage.removeItem('@avatar')
+                                }
+                                if (email !== null) {
+                                    await AsyncStorage.setItem('@email', email)
+                                }
+                                if (lastName !== null) {
+                                    await AsyncStorage.setItem('@lastName', lastName)
+                                }
+                                if (firstName !== null) {
+                                    await AsyncStorage.setItem('@firstName', firstName)
+                                }
+                                if (phone !== null) {
+                                    await AsyncStorage.setItem('@phone', phone)
+                                }
                                 await AsyncStorage.setItem('@orderStatus', String(orderStatus))
                                 await AsyncStorage.setItem('@passwordChange', String(passwordChange))
                                 await AsyncStorage.setItem('@specialOffer', String(specialOffer))
                                 await AsyncStorage.setItem('@newsletter', String(newsletter))
+
+                                navigation.goBack()
                             } catch (e) {
                                 Alert.alert(`An error occurred: ${e.message}`);
                             } 
