@@ -10,6 +10,7 @@ import {
     TextInput, 
     FlatList,
     TouchableOpacity} from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import PlaceholderImage from '../components/PlaceholderImage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
@@ -131,26 +132,25 @@ export default function Home({ navigation }) {
         fetchMenuOfCategories(s, text)
     }, 500)
 
-    React.useEffect(() => {
-        const fetchAsyncStorageData = async () => {
-            try {
-                const avatar = await AsyncStorage.getItem('@avatar');
-                const lastName = await AsyncStorage.getItem('@lastName');
-                const firstName = await AsyncStorage.getItem('@firstName');
-                setAvatar(avatar);
-                setLastName(lastName);
-                setFirstName(firstName);
-            } catch (e) {
-                Alert.alert(`An error occurred: ${e.message}`);
-            }
-        };
+    const fetchAsyncStorageData = async () => {
+        try {
+            const avatar = await AsyncStorage.getItem('@avatar');
+            const lastName = await AsyncStorage.getItem('@lastName');
+            const firstName = await AsyncStorage.getItem('@firstName');
+            setAvatar(avatar);
+            setLastName(lastName);
+            setFirstName(firstName);
+        } catch (e) {
+            Alert.alert(`An error occurred: ${e.message}`);
+        }
+    };
 
+    React.useEffect(() => {
         const fetchDataFromApi = async () => {
             try {
                 const response = await fetch('https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json');
                 const data = await response.json();
                 setItemData(data.menu);
-                // setLoading(false);
                 saveDataToDatabase(data.menu);
             } catch (e) {
                 Alert.alert(`An error occurred: ${e.message}`);
@@ -187,23 +187,24 @@ export default function Home({ navigation }) {
         };
 
         const fetchCategoryFromData = () => {
-            db.transaction(tx => {
-                tx.executeSql('SELECT Distinct category FROM menus', [], (_, { rows: { _array } }) => {
-                    const c = _array.map(( item, index ) => (
-                        {'category': item.category, 'isSelected': false, 'id': index}
-                    ))
-                    setCategories( c )
-                    setLoading(false)
-                }, (tx, error) => {
-                    Alert.alert(`Database error: ${error.message}`);
-                    setLoading(false);
-                })
-            })
+            setCategories([
+                {'category': 'starters', 'isSelected': false, 'id': 0},
+                {'category': 'mains', 'isSelected': false, 'id': 1},
+                {'category': 'desserts', 'isSelected': false, 'id': 2},
+                {'category': 'drinks', 'isSelected': false, 'id': 3},
+            ])
+            setLoading(false);
         }
 
         fetchAsyncStorageData();
         fetchDataFromDatabase();
     }, [])
+
+    useFocusEffect(
+        React.useCallback(() => {
+          fetchAsyncStorageData();
+        }, [])
+    )
 
     return (
         <View style={styles.container}>
