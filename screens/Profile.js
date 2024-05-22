@@ -1,12 +1,22 @@
 import * as React from 'react';
-import {View, Text, StyleSheet, KeyboardAvoidingView, Pressable, Platform, Image, TextInput, Alert} from 'react-native'
+import {
+    View,
+    Text, 
+    StyleSheet, 
+    KeyboardAvoidingView, 
+    Pressable, 
+    Platform, 
+    Image, 
+    TextInput, 
+    Alert, 
+    ScrollView } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import { MaskedTextInput, mask } from "react-native-mask-text";
 import CheckBoxItem from '../components/CheckBoxItem'
 import PlaceholderImage from '../components/PlaceholderImage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Profile() {
+export default function Profile({ navigation }) {
     const [avatar, setAvatar] = React.useState(null)
     const [firstName, setFirstName] = React.useState('')
     const [lastName, setLastName] = React.useState('')
@@ -63,19 +73,27 @@ export default function Profile() {
     return (
         <KeyboardAvoidingView 
             style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}>
+            behavior={Platform.OS === "ios" ? "padding" : "height"}>
                 <View style={styles.headerView}>
                     <Pressable style={styles.backButton}
                         onPress={() => {
-                            console.log('Button Pressed')
+                            navigation.goBack()
                         }}>
-                        <Image source={require('../img/back.png')} style={styles.backButton}/>
+                        <Image source={require('../img/back.png')} style={styles.backButton} />
                     </Pressable>
                     <Image source={require('../img/Logo.png')} style={styles.logo}/>
-                    <Image source={{ uri: avatar }} style={styles.profileAvatar} />
+                    <View style={styles.profileAvatar}>
+                        {avatar ? (
+                            <Image source={{ uri: avatar }} style={styles.profileAvatar} />
+                        ) : (
+                            <PlaceholderImage firstName={firstName} lastName={lastName} />
+                        )}
+                    </View>
                 </View>
-                <View style={styles.body}>
+                <ScrollView 
+                    style={styles.body}
+                    keyboardShouldPersistTaps='handled'
+                    contentContainerStyle={styles.contentContainer}>
                     <Text style={styles.mainTitle}>Personal information</Text>
                     <Text style={styles.prompt}>Avatar</Text>
                     <View style={styles.avatarSetter}>
@@ -162,7 +180,7 @@ export default function Profile() {
                     }}>
                         <Text style={styles.saveText}>Save Changes</Text>
                     </Pressable>
-                </View>
+                </ ScrollView>
         </KeyboardAvoidingView>
     )
 }
@@ -193,13 +211,17 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
+        overflow: 'hidden',
     },
-    
+
     body: {
         width: '100%',
         flex: 1,
         verticalAlign: 'bottom',
         paddingHorizontal: 14,
+    },
+    contentContainer: {
+        paddingBottom: 100,
     },
     mainTitle: {
         marginTop: 20,
